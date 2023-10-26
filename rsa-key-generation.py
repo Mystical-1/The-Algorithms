@@ -2,7 +2,8 @@ import os
 import random
 import sys
 
-
+import cryptomath_module
+import rabin_miller
 
 def main() -> None:
     print("Making key files...")
