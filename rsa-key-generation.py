@@ -1,46 +1,54 @@
-import math
+import os
 import random
+import sys
 
 
-def rsafactor(d: int, e: int, n: int) -> list[int]:
+
+def main() -> None:
+    print("Making key files...")
+    make_key_files("rsa", 1024)
+    print("Key files generation successful.")
+
+
+def generate_key(key_size: int) -> tuple[tuple[int, int], tuple[int, int]]:
     """
-    This function returns the factors of N, where p*q=N
-      Return: [p, q]
-
-    We call N the RSA modulus, e the encryption exponent, and d the decryption exponent.
-    The pair (N, e) is the public key. As its name suggests, it is public and is used to
-        encrypt messages.
-    The pair (N, d) is the secret key or private key and is known only to the recipient
-        of encrypted messages.
-
-    >>> rsafactor(3, 16971, 25777)
-    [149, 173]
-    >>> rsafactor(7331, 11, 27233)
-    [113, 241]
-    >>> rsafactor(4021, 13, 17711)
-    [89, 199]
+    >>> random.seed(0) # for repeatability
+    >>> public_key, private_key = generate_key(8)
+    >>> public_key
+    (26569, 239)
+    >>> private_key
+    (26569, 2855)
     """
-    k = d * e - 1
-    p = 0
-    q = 0
-    while p == 0:
-        g = random.randint(2, n - 1)
-        t = k
-        while True:
-            if t % 2 == 0:
-                t = t // 2
-                x = (g**t) % n
-                y = math.gcd(x - 1, n)
-                if x > 1 and y > 1:
-                    p = y
-                    q = n // y
-                    break  # find the correct factors
-            else:
-                break  # t is not divisible by 2, break and choose another g
-    return sorted([p, q])
+    p = rabin_miller.generate_large_prime(key_size)
+    q = rabin_miller.generate_large_prime(key_size)
+    n = p * q
+
+    # Generate e that is relatively prime to (p - 1) * (q - 1)
+    while True:
+        e = random.randrange(2 ** (key_size - 1), 2 ** (key_size))
+        if cryptomath_module.gcd(e, (p - 1) * (q - 1)) == 1:
+            break
+
+    # Calculate d that is mod inverse of e
+    d = cryptomath_module.find_mod_inverse(e, (p - 1) * (q - 1))
+
+    public_key = (n, e)
+    private_key = (n, d)
+    print(e, d)
+    return (public_key, private_key)
+
+
+def make_key_files(name: str, key_size: int) -> None:
+
+    public_key, private_key = generate_key(key_size)
+    print(f"\nWriting public key to file {name}_pubkey.txt...")
+    with open(f"{name}_pubkey.txt", "w") as out_file:
+        out_file.write(f"{key_size},{public_key[0]},{public_key[1]}")
+
+    print(f"Writing private key to file {name}_privkey.txt...")
+    with open(f"{name}_privkey.txt", "w") as out_file:
+        out_file.write(f"{key_size},{private_key[0]},{private_key[1]}")
 
 
 if __name__ == "__main__":
-    import doctest
-
-    doctest.testmod()
+    main()
