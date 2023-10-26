@@ -1,7 +1,7 @@
 import string
  
  
-# A list containing all characters
+# A list containing all characters [A-Z]
 all_letters= string.ascii_letters
   
      
@@ -23,7 +23,6 @@ plain_txt= "I am studying Data Encryption"
 cipher_txt=[]
   
 # loop to generate ciphertext
-  
 for char in plain_txt:
     if char in all_letters:
         temp = dict1[char]
